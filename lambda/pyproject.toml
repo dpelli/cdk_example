@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "lambda"
+version = "0.1.0"
+description = ""
+authors = ["Desiree Pelletier <pelletier.desiree@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+boto3 = "^1.26.86"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
