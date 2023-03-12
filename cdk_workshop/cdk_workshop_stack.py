@@ -48,7 +48,7 @@ class CdkWorkshopStack(Stack):
             self,
             "HelloHandler",
             runtime=_lambda.Runtime.PYTHON_3_9,
-            code=_lambda.Code.from_asset("lambda"),
+            code=_lambda.Code.from_asset("lambda", exclude=["pyproject.toml", "poetry.lock"]),
             handler="hello.handler",
             retry_attempts=0,
             timeout=Duration.seconds(constants.API_HANDLER_LAMBDA_TIMEOUT),

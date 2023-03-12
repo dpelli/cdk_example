@@ -1,10 +1,38 @@
 import json
-import os, re, base64
+import os
+import re
+import base64
 import boto3
+import requests
 import logging
+from pathlib import Path
+from enum import Enum
+from pprint import pprint
+from user_model import User
+from utils import process_via_threading, process_normal
+import time
 
-logger = logging.getLogger("lambda_function")
-logger.setLevel("DEBUG")
+filename = Path(__file__).stem
+logger = logging.getLogger(filename)
+logger.setLevel("INFO")
+logging.basicConfig()
+
+BASE_URL = "https://random-data-api.com/api/v2/"
+
+
+class ContentType(Enum):
+    text_html = "text/html"
+    zip = "application/zip"
+
+
+class ApiResources(Enum):
+    users = "users"
+    address = "addresses"
+    banks = "banks"
+    appliances = "appliances"
+    beers = "beers"
+    blood_types = "blood_types"
+    credit_cards = "credit_cards"
 
 
 def handler(event, context):
@@ -17,39 +45,62 @@ def handler(event, context):
     return my_page
 
 
-def page_router(http_method, query_string, form_body):
+def page_router(http_method, query_string=None, form_body=None):
 
     if http_method == "GET":
         logger.info("GET received")
 
-        html_file = open("contact_us.html", "r")
+        html_file = open("index.html", "r")
         html_content = html_file.read()
+
         return {
             "statusCode": 200,
-            "headers": {"Content-Type": "text/html"},
+            "headers": {"Content-Type": ContentType.text_html.value},
             "body": html_content,
         }
 
     if http_method == "POST":
         logger.info("POST received")
-        logger.info(f"form_body: {form_body}")
 
-        insert_record(form_body)
+        users = call_api()
 
-        html_file = open("confirm.html", "r")
-        html_content = html_file.read()
-        return {
-            "statusCode": 200,
-            "headers": {"Content-Type": "text/html"},
-            "body": html_content,
-        }
+        path = os.path.join(os.path.dirname(__file__), "tmp")
+        logger.info(f"Writing to {path}")
+
+        # process pool executor
+        process_via_threading(path=path, data_list=users)
+        # process_normal(path=path, data_list=users)
+
+        # files = bytes("", "utf-8")
+        # zip_file = base64.b64encode(files).decode("ascii")
+        #
+        # return {
+        #     "statusCode": 200,
+        #     "headers": {"Content-Type": ContentType.zip.value},
+        #     "body": zip_file,
+        # }
 
 
-def insert_record(form_body):
-    # form_body = form_body.replace("=", "' : '")
-    # form_body = form_body.replace("&", "', '")
-    # form_body = "INSERT INTO dojotable value {'" + form_body + "'}"
-    #
-    # client = boto3.client('dynamodb')
-    # client.execute_statement(Statement=form_body)
-    logger.info(f"Form received.... {form_body}")
+def call_api():
+
+    params = {
+        "size": 30,
+    }
+    url = f"{BASE_URL}{ApiResources.users.value}"
+
+    logger.info("Calling API")
+
+    response = requests.get(url=url, params=params).json()
+
+    if not response:
+        logger.error("Issue calling API", exc_info=True)
+
+    logger.info(f"Call successful. Creating {len(response)} users.")
+
+    return [User.parse_obj(user) for user in response]
+
+
+if __name__ == "__main__":
+    start_time = time.time()
+    page_router("POST")
+    print("--- %s seconds ---" % (time.time() - start_time))
