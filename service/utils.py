@@ -4,8 +4,9 @@ from os import makedirs
 from concurrent.futures import ProcessPoolExecutor
 import pandas as pd
 
-filename = Path(__file__).stem
-logger = logging.getLogger(filename)
+# filename = Path(__file__).stem
+# logger = logging.getLogger(filename)
+logger = logging.getLogger(__name__)
 logger.setLevel("INFO")
 logging.basicConfig()
 

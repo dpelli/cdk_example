@@ -2,10 +2,10 @@
 
 import aws_cdk as cdk
 
-from cdk_workshop.cdk_workshop_stack import CdkWorkshopStack
+from cdk.cdk_example_stack import CdkExampleStack
 
 
 app = cdk.App()
-CdkWorkshopStack(app, "cdk-workshop")
+CdkExampleStack(app, "cdk-example")
 
 app.synth()

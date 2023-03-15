@@ -12,8 +12,9 @@ from user_model import User
 from utils import process_via_threading, process_normal
 import time
 
-filename = Path(__file__).stem
-logger = logging.getLogger(filename)
+# filename = Path(__file__).stem
+# logger = logging.getLogger(filename)
+logger = logging.getLogger(__name__)
 logger.setLevel("INFO")
 logging.basicConfig()
 
@@ -68,8 +69,8 @@ def page_router(http_method, query_string=None, form_body=None):
         logger.info(f"Writing to {path}")
 
         # process pool executor
-        process_via_threading(path=path, data_list=users)
-        # process_normal(path=path, data_list=users)
+        # process_via_threading(path=path, data_list=users)
+        process_normal(path=path, data_list=users)
 
         # files = bytes("", "utf-8")
         # zip_file = base64.b64encode(files).decode("ascii")
@@ -84,7 +85,7 @@ def page_router(http_method, query_string=None, form_body=None):
 def call_api():
 
     params = {
-        "size": 30,
+        "size": 50,
     }
     url = f"{BASE_URL}{ApiResources.users.value}"
 
@@ -100,7 +101,7 @@ def call_api():
     return [User.parse_obj(user) for user in response]
 
 
-if __name__ == "__main__":
-    start_time = time.time()
-    page_router("POST")
-    print("--- %s seconds ---" % (time.time() - start_time))
+# if __name__ == "__main__":
+#     start_time = time.time()
+#     page_router("POST")
+#     print("--- %s seconds ---" % (time.time() - start_time))
