@@ -3,15 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>User Info</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
 </head>
 <body>
     <h2>How Many Users</h2>
 
     <form action="/prod/users" method="post">
-    <label for="user_num">Number of users to fetch:</label><br>
-    <input type="text" id="user_num" name="user_num" ><br>
+    <label for="user_num">Number of users to fetch:</label>
+    <input type="text" id="user_num" name="user_num" ><br><br>
 
-    <input type="submit" value="Submit">
+    <input id="submitBtn" type="submit" value="Submit">
     </form>
+
 </body>
 </html>
+<script type="text/javascript" >
+    $(document).ready(function() {
+        $('submitBtn').click(function(){
+            $('submitBtn').hide();
+        });
+    });
+</script>

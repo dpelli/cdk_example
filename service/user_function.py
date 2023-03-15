@@ -1,16 +1,23 @@
-import json
+# Standard Library Imports
 import os
 import re
+import json
+import time
 import base64
-import boto3
-import requests
+import urllib.parse
 import logging
-from pathlib import Path
 from enum import Enum
 from pprint import pprint
-from user_model import User
-from utils import process_via_threading, process_normal
-import time
+from typing import List
+from pathlib import Path
+
+# Third-Party Imports
+import boto3
+import requests
+
+# Project-Level Imports
+from service.utils import process_normal, process_via_threading
+from service.user_model import User
 
 # filename = Path(__file__).stem
 # logger = logging.getLogger(filename)
@@ -24,6 +31,7 @@ BASE_URL = "https://random-data-api.com/api/v2/"
 class ContentType(Enum):
     text_html = "text/html"
     zip = "application/zip"
+    json = "application/json"
 
 
 class ApiResources(Enum):
@@ -37,21 +45,26 @@ class ApiResources(Enum):
 
 
 def handler(event, context):
-    logger.info(f"Event: {event}")
-
-    my_page = page_router(
-        event["httpMethod"], event["queryStringParameters"], event["body"]
+    logger.info(
+        f'Event: {event["httpMethod"]}, {event["queryStringParameters"]}, {event["body"]}'
     )
+    logger.info(f"Context: {context}")
+
+    my_page = page_router(http_method=event["httpMethod"], body=event["body"])
 
     return my_page
 
 
-def page_router(http_method, query_string=None, form_body=None):
+def page_router(
+    http_method,
+    body,
+):
 
     if http_method == "GET":
         logger.info("GET received")
 
-        html_file = open("index.html", "r")
+        html_path = os.path.join(os.path.dirname(__file__), "index.html")
+        html_file = open(html_path, "r")
         html_content = html_file.read()
 
         return {
@@ -63,14 +76,18 @@ def page_router(http_method, query_string=None, form_body=None):
     if http_method == "POST":
         logger.info("POST received")
 
-        users = call_api()
+        new_body = urllib.parse.parse_qs(body)
+        user_num = next(iter(new_body.get("user_num", [])), None)
+        logger.info(f"user_num: {user_num}")
 
-        path = os.path.join(os.path.dirname(__file__), "tmp")
-        logger.info(f"Writing to {path}")
+        users = call_api(user_num)
+
+        # path = os.path.join(os.path.dirname(__file__), "tmp")
+        # logger.info(f"Writing to {path}")
 
         # process pool executor
         # process_via_threading(path=path, data_list=users)
-        process_normal(path=path, data_list=users)
+        # process_normal(path=path, data_list=users)
 
         # files = bytes("", "utf-8")
         # zip_file = base64.b64encode(files).decode("ascii")
@@ -81,11 +98,19 @@ def page_router(http_method, query_string=None, form_body=None):
         #     "body": zip_file,
         # }
 
+        names = [f"{user.last_name}, {user.first_name}" for user in users]
 
-def call_api():
+        return {
+            "statusCode": 200,
+            "headers": {"Content-Type": ContentType.json.value},
+            "body": json.dumps(names),
+        }
+
+
+def call_api(user_num) -> List[User]:
 
     params = {
-        "size": 50,
+        "size": user_num,
     }
     url = f"{BASE_URL}{ApiResources.users.value}"
 

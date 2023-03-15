@@ -1,14 +1,16 @@
-from constructs import Construct
+# Third-Party Imports
 from aws_cdk import (
+    Stack,
     Duration,
     RemovalPolicy,
-    Stack,
     aws_logs,
     aws_lambda as _lambda,
     aws_apigateway as apigw,
 )
+from constructs import Construct
 from aws_cdk.aws_lambda_python_alpha import PythonLayerVersion
 
+# Project-Level Imports
 from cdk import constants
 
 
@@ -59,13 +61,13 @@ class CdkExampleStack(Stack):
         )
 
         # POST /users/
-        self.api_name.add_method(
+        self.users_resource.add_method(
             http_method="POST",
             integration=apigw.LambdaIntegration(handler=lambda_function),
         )
 
         # GET /users/
-        self.api_name.add_method(
+        self.users_resource.add_method(
             http_method="GET",
             integration=apigw.LambdaIntegration(handler=lambda_function),
         )

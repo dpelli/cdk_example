@@ -14,7 +14,7 @@ build:
 
 deploy:
 	make build
-	cdk deploy --app="python3 ${PWD}/app.py" --require-approval=never
+	cdk deploy --app="python3 ${PWD}/app.py" --require-approval=never --profile="prod"
 
 destroy:
-	cdk destroy --app="python3 ${PWD}/app.py" --force
+	cdk destroy --app="python3 ${PWD}/app.py" --force --profile="prod"
