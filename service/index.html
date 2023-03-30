@@ -15,13 +15,12 @@
 
     <input id="submitBtn" type="submit" value="Submit">
     </form>
-
+    <script type="text/javascript" >
+        $(document).ready(function() {
+            $('submitBtn').click(function(){
+                $('submitBtn').hide();
+            });
+        });
+    </script>
 </body>
 </html>
-<script type="text/javascript" >
-    $(document).ready(function() {
-        $('submitBtn').click(function(){
-            $('submitBtn').hide();
-        });
-    });
-</script>

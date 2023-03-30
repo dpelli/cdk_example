@@ -83,28 +83,29 @@ def page_router(
         users = call_api(user_num)
 
         # path = os.path.join(os.path.dirname(__file__), "tmp")
-        # logger.info(f"Writing to {path}")
+        path = "/tmp"
+        logger.info(f"Writing to {path}")
 
         # process pool executor
         # process_via_threading(path=path, data_list=users)
-        # process_normal(path=path, data_list=users)
+        process_normal(path=path, data_list=users)
 
-        # files = bytes("", "utf-8")
-        # zip_file = base64.b64encode(files).decode("ascii")
-        #
-        # return {
-        #     "statusCode": 200,
-        #     "headers": {"Content-Type": ContentType.zip.value},
-        #     "body": zip_file,
-        # }
-
-        names = [f"{user.last_name}, {user.first_name}" for user in users]
+        files = bytes("", "utf-8")
+        zip_file = base64.b64encode(files).decode("ascii")
 
         return {
             "statusCode": 200,
-            "headers": {"Content-Type": ContentType.json.value},
-            "body": json.dumps(names),
+            "headers": {"Content-Type": ContentType.zip.value},
+            "body": zip_file,
         }
+
+        # names = [f"{user.last_name}, {user.first_name}" for user in users]
+        #
+        # return {
+        #     "statusCode": 200,
+        #     "headers": {"Content-Type": ContentType.json.value},
+        #     "body": json.dumps(names),
+        # }
 
 
 def call_api(user_num) -> List[User]:
@@ -124,9 +125,3 @@ def call_api(user_num) -> List[User]:
     logger.info(f"Call successful. Creating {len(response)} users.")
 
     return [User.parse_obj(user) for user in response]
-
-
-# if __name__ == "__main__":
-#     start_time = time.time()
-#     page_router("POST")
-#     print("--- %s seconds ---" % (time.time() - start_time))
