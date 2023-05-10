@@ -12,6 +12,9 @@ build:
 	mkdir -p .build/lambdas ; cp -r service .build/lambdas
 	mkdir -p .build/common_layer ; poetry export --without=dev --without-hashes --format=requirements.txt > .build/common_layer/requirements.txt
 
+login:
+	aws sso login --profile prod
+
 deploy:
 	make build
 	cdk deploy --app="python3 ${PWD}/app.py" --require-approval=never --profile="prod"
